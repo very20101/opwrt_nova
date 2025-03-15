@@ -4,7 +4,6 @@ on:
 #  schedule: [cron: 30 14 */3 * *]
 #  watch:
 #    types: started
-  
   workflow_dispatch:
     inputs:
       source:
@@ -165,6 +164,7 @@ jobs:
       if: steps.toolchain.conclusion == 'success' || env.OUTPUT_RELEASE == 'true'
       uses: softprops/action-gh-release@v2
       with:
+        permissions: write-all
         name: toolchain-cache
         tag_name: ${{ env.TOOLCHAIN_TAG }}
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -231,6 +231,7 @@ jobs:
       if: env.PACKAGED_STATUS == 'success' && github.event.inputs.artifact == 'true'
       uses: actions/upload-artifact@main
       with:
+        permissions: write-all
         name: ${{ env.SOURCE_REPO }}-${{ env.LITE_BRANCH }}-${{ env.DEVICE_TARGET }}-firmware-${{ env.FILE_DATE }}
         path: ${{ env.PACKAGED_OUTPUTPATH }}
 
@@ -238,6 +239,7 @@ jobs:
       if: env.PACKAGED_STATUS == 'success' && github.event.inputs.release == 'true'
       uses: ncipollo/release-action@main
       with:
+        permissions: write-all
         name: ${{ env.DATE }} for ${{ env.DEVICE_TARGET }}
         allowUpdates: true
         removeArtifacts: true

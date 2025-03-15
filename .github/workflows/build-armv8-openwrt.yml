@@ -4,9 +4,6 @@ on:
 #  schedule: [cron: 30 14 */3 * *]
 #  watch:
 #    types: started
-
-permissions:
-  write-all
   
   workflow_dispatch:
     inputs:

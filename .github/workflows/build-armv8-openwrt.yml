@@ -156,7 +156,7 @@ jobs:
       if: steps.toolchain.conclusion == 'success' || env.OUTPUT_RELEASE == 'true'
       uses: mknejp/delete-release-assets@v1
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.VERY_OPWRT }}
         tag: ${{ env.TOOLCHAIN_TAG }}
         assets: '${{ env.SOURCE_REPO }}-${{ env.LITE_BRANCH }}-${{ env.DEVICE_TARGET }}*'
         fail-if-no-assets: false
@@ -168,7 +168,7 @@ jobs:
       with:
         name: toolchain-cache
         tag_name: ${{ env.TOOLCHAIN_TAG }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.VERY_OPWRT }}
         files: output/*
         body: OpenWrt 工具链缓存
 
@@ -201,8 +201,6 @@ jobs:
     - name: Packaging OpenWrt
       if: steps.compile.conclusion == 'success'
       uses: haiibo/flippy-openwrt-actions@main
-      with: 
-        permissions: write-all
       env:
         OPENWRT_ARMVIRT: openwrt/bin/targets/*/*/*rootfs.tar.gz
         KERNEL_REPO_URL: ophub/kernel
@@ -233,21 +231,17 @@ jobs:
     - name: Upload OpenWrt To Artifact
       if: env.PACKAGED_STATUS == 'success' && github.event.inputs.artifact == 'true'
       uses: actions/upload-artifact@main
-      with:
-        permissions: write-all
         name: ${{ env.SOURCE_REPO }}-${{ env.LITE_BRANCH }}-${{ env.DEVICE_TARGET }}-firmware-${{ env.FILE_DATE }}
         path: ${{ env.PACKAGED_OUTPUTPATH }}
 
     - name: Upload OpenWrt To Release
       if: env.PACKAGED_STATUS == 'success' && github.event.inputs.release == 'true'
       uses: ncipollo/release-action@main
-      with:
-        permissions: write-all
         name: ${{ env.DATE }} for ${{ env.DEVICE_TARGET }}
         allowUpdates: true
         removeArtifacts: true
         tag: ${{ env.RELEASE_TAG }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.VERY_OPWRT }}
         artifacts: ${{ env.FIRMWARE_PATH }}/*,${{ env.PACKAGED_OUTPUTPATH }}/*
         body: |
           **This is ${{ env.SOURCE_REPO }} firmware for ${{ env.DEVICE_TARGET }}**

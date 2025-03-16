@@ -156,7 +156,6 @@ jobs:
       if: steps.toolchain.conclusion == 'success' || env.OUTPUT_RELEASE == 'true'
       uses: mknejp/delete-release-assets@v1
       with:
-        permissions: write-all
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ env.TOOLCHAIN_TAG }}
         assets: '${{ env.SOURCE_REPO }}-${{ env.LITE_BRANCH }}-${{ env.DEVICE_TARGET }}*'
@@ -167,7 +166,6 @@ jobs:
       if: steps.toolchain.conclusion == 'success' || env.OUTPUT_RELEASE == 'true'
       uses: softprops/action-gh-release@v2
       with:
-        permissions: write-all
         name: toolchain-cache
         tag_name: ${{ env.TOOLCHAIN_TAG }}
         token: ${{ secrets.GITHUB_TOKEN }}

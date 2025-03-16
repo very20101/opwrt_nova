@@ -231,12 +231,14 @@ jobs:
     - name: Upload OpenWrt To Artifact
       if: env.PACKAGED_STATUS == 'success' && github.event.inputs.artifact == 'true'
       uses: actions/upload-artifact@main
+      with:
         name: ${{ env.SOURCE_REPO }}-${{ env.LITE_BRANCH }}-${{ env.DEVICE_TARGET }}-firmware-${{ env.FILE_DATE }}
         path: ${{ env.PACKAGED_OUTPUTPATH }}
 
     - name: Upload OpenWrt To Release
       if: env.PACKAGED_STATUS == 'success' && github.event.inputs.release == 'true'
       uses: ncipollo/release-action@main
+      with:
         name: ${{ env.DATE }} for ${{ env.DEVICE_TARGET }}
         allowUpdates: true
         removeArtifacts: true

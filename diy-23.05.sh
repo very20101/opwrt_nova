@@ -249,6 +249,16 @@ clone_all https://github.com/linkease/istore luci
 clone_all https://github.com/brvphoenix/luci-app-wrtbwmon
 clone_all https://github.com/brvphoenix/wrtbwmon
 
+## extra-package-alt
+git clone -b main https://github.com/very20101/openwrt_N1-Nova packages/opwrt_N1
+
+cp -rf packages/opwrt_N1/extra-package/luci-app-ssr-plus feeds/luci/applications/
+cp -rf packages/opwrt_N1/extra-package/luci-app-passwall2 feeds/luci/applications/
+cp -rf packages/opwrt_N1/extra-package/shadow-tls feeds/packages/shadow-tls
+cp -rf packages/opwrt_N1/extra-package/shadowsocksr-libev feeds/packages/shadowsocksr-libev
+cp -rf packages/opwrt_N1/extra-package/shadowsocks-libev feeds/packages/shadowsocks-libev
+
+
 # 科学上网插件
 clone_all https://github.com/fw876/helloworld
 clone_all https://github.com/xiaorouji/openwrt-passwall-packages

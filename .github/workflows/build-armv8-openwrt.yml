@@ -183,6 +183,7 @@ jobs:
     - name: Compile Firmware
       id: compile
       run: |
+        rm -rf feeds/packages/net/shadowsocks-rust feeds/packages/net/shadowsocksr-libev
         cd $OPENWRT_PATH
         mkdir -p files/etc/uci-defaults
         cp $GITHUB_WORKSPACE/scripts/init-settings.sh files/etc/uci-defaults/99-init-settings

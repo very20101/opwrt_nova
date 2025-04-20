@@ -229,8 +229,14 @@ jobs:
         if [[ $SOURCE_REPO == 'immortalwrt' ]]; then
           rename 's/openwrt/${{ env.SOURCE_REPO }}/' *
         fi
+        
+        if [[ -f immortalwrt-armsr-armv8-generic-squashfs-rootfs.img ]]; then
         gzip -9 immortalwrt-armsr-armv8-generic-squashfs-rootfs.img
-
+        else
+        echo "Error: File immortalwrt-armsr-armv8-generic-squashfs-rootfs.img not found!"
+        exit 1
+        fi
+  
     - name: Upload artifact
       uses: actions/upload-artifact@main
       with:

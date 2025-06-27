@@ -109,6 +109,15 @@ jobs:
        KERNEL_AUTO_LATEST: true
        WHOAMI: very20101
        
+    - name: Copy output images
+      run: |
+       IMAGE=$(find ./bin/targets -name '*.img.gz' | head -n 1)
+        if [ -z "$IMAGE" ]; then
+        echo "Image file not found!"
+        exit 1
+       fi
+       cp "$IMAGE" .
+    
     - name: Organize files
       run: |
         if [[ "${{ github.event_name }}" == 'repository_dispatch' ]]; then

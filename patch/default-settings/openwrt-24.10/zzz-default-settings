@@ -23,7 +23,7 @@ uci commit dropbear
 
 
 # Modify default IP
-sed -i 's/192.168.1.1/192.168.1.100/g' package/base-files/files/bin/config_generate
+sed -i 's/192.168.1.1/192.168.1.200/g' package/base-files/files/bin/config_generate
 
 # PASSWALL
 [ -f '/usr/share/v2ray/geoip.dat' ] && uci set passwall.@global_rules[0].v2ray_location_asset='/usr/share/v2ray/'

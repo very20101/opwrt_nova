@@ -21,6 +21,10 @@ uci commit system
 uci set dropbear.@dropbear[0].Interface='lan'
 uci commit dropbear
 
+
+# Modify default IP
+sed -i 's/192.168.1.1/192.168.1.100/g' package/base-files/files/bin/config_generate
+
 # PASSWALL
 [ -f '/usr/share/v2ray/geoip.dat' ] && uci set passwall.@global_rules[0].v2ray_location_asset='/usr/share/v2ray/'
 uci set passwall.@global_subscribe[0].ss_aead_type='shadowsocks-rust'

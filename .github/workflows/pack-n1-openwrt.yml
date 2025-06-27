@@ -10,7 +10,7 @@ name: pack_newK
 on:
   workflow_dispatch:
   schedule:
-    - cron: 30 8 */5 * *
+    - cron: 30 8 */20 * *
   watch:
     types: started
 

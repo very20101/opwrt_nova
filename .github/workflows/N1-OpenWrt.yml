@@ -99,18 +99,15 @@ jobs:
         name: OpenWrt_rootfs_${{ env.build_date }}
         path: openwrt/bin
 
-    - name: Packit firmware
-      uses: ffuqiangg/amlogic-s9xxx-openwrt@main
-      with:
-        openwrt_path: openwrt/bin/targets/*/*/*rootfs.tar.gz
-        openwrt_board: s905d
-        kernel_repo: ffuqiangg/kernel_6.6.y
-        openwrt_kernel: ${{ env.kernel_version }}
-        kernel_usage: stable
-        auto_kernel: false
-        openwrt_size: 820
-        build_date: ${{ env.build_date }}
-
+    - name: Package OpenWrt Firmware
+      uses: ophub/flippy-openwrt-actions@main
+      env:
+       OPENWRT_ARMVIRT: openwrt/bin/targets/*/*/*.tar.gz
+       PACKAGE_SOC: s905d
+       KERNEL_VERSION_NAME: 6.1.y_6.6.y
+       KERNEL_AUTO_LATEST: true
+       WHOAMI: very20101
+       
     - name: Organize files
       run: |
         if [[ "${{ github.event_name }}" == 'repository_dispatch' ]]; then

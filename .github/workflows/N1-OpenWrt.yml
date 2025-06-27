@@ -59,6 +59,7 @@ jobs:
         echo "build_date=$(date +%Y.%m.%d)" >> ${GITHUB_ENV}
         cp -r ./scripts/openwrt-24.10/. ./
         /bin/bash 01_prepare_source_code.sh
+        mkdir -p /home/runner/work/_actions/ffuqiangg/amlogic-s9xxx-openwrt/main
         ln -sf /home/runner/work/opwrt_nova/opwrt_nova/openwrt /home/runner/work/_actions/ffuqiangg/amlogic-s9xxx-openwrt/main/openwrt
 
     - name: Prepare package

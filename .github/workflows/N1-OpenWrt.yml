@@ -111,12 +111,13 @@ jobs:
        
     - name: Copy output images
       run: |
-       IMAGE=$(find ./bin/targets -name '*.img.gz' | head -n 1)
+        IMAGE=$(find ./output -name '*.img.gz' | head -n 1)
+        #IMAGE=$(find ./bin/targets -name '*.img.gz' | head -n 1)
         if [ -z "$IMAGE" ]; then
         echo "Image file not found!"
         exit 1
-       fi
-       cp "$IMAGE" .
+        fi
+        cp "$IMAGE" .
     
     - name: Organize files
       run: |

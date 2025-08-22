@@ -11,6 +11,7 @@ clone_repo $dockerman_repo master dockerman &
 clone_repo $node_prebuilt_repo packages-24.10 node &
 clone_repo $openwrt_apps_repo main openwrt-apps &
 clone_repo $amlogic_repo main amlogic &
+git clone https://github.com/very20101/small-package.git smpackage
 # 等待所有后台任务完成
 wait
 

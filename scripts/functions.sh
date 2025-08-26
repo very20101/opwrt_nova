@@ -23,6 +23,8 @@ node_prebuilt_repo="https://github.com/sbwml/feeds_packages_lang_node-prebuilt"
 nikki_repo="https://github.com/nikkinikki-org/OpenWrt-nikki.git"
 v2ray_geodata_repo="https://github.com/sbwml/v2ray-geodata"
 amlogic_repo="https://github.com/ophub/luci-app-amlogic.git"
+N1_test_repo="https://github.com/very20101/openwrt_N1_test.git"
+small_package_repo="https://github.com/very2010/small-package.git"
 
 clone_repo () 
 {

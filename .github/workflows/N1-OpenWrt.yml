@@ -100,6 +100,18 @@ jobs:
         name: OpenWrt_rootfs_${{ env.build_date }}
         path: openwrt/bin
 
+    - name: Upload OpenWrt Firmware to Release
+      uses: ncipollo/release-action@main
+      if: ${{ steps.compile.outputs.status }} == 'success' && !cancelled()
+      with:
+        name: Opwrt-nova
+        tag: ${{ env.OPENWRT_TAG }}
+        makeLatest: true
+        replacesArtifacts: true
+        artifacts: openwrt/bin/targets/*/*/*rootfs.tar.gz
+        allowUpdates: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Package OpenWrt Firmware
       uses: ophub/flippy-openwrt-actions@main
       env:

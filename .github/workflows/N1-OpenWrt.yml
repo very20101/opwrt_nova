@@ -75,6 +75,7 @@ jobs:
         sed -i "s/DATE/${{ env.build_date }}/;s/WRT_SOUR/OpenWrt/;s/RELEASES/${latest_release}/" ./openwrt/files/etc/banner
         echo "latest_release=${latest_release}" >> ${GITHUB_ENV}
         echo "kernel_version=${kernel_version}" >> ${GITHUB_ENV}
+        echo "OPENWRT_TAG=openwrt-24.10-${{ env.build_date }}" >> ${GITHUB_ENV}
 
     - name: Make config
       working-directory: ${{ github.workspace }}/openwrt
@@ -99,14 +100,14 @@ jobs:
       with:
         name: OpenWrt_rootfs_${{ env.build_date }}
         path: openwrt/bin
-
+        
     - name: Upload OpenWrt Firmware to Release
-      uses: ncipollo/release-action@main
-      if: ${{ steps.compile.outputs.status }} == 'success' && !cancelled()
-      with:
+     uses: ncipollo/release-action@main
+     if: ${{ steps.compile.outputs.status  == 'success' && !cancelled() }}
+     with:
         name: Opwrt-nova
         tag: ${{ env.OPENWRT_TAG }}
-        makeLatest: true
+        #makeLatest: true
         replacesArtifacts: true
         artifacts: openwrt/bin/targets/*/*/*rootfs.tar.gz
         allowUpdates: true

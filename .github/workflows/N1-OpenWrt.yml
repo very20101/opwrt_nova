@@ -10,7 +10,7 @@ env:
   TZ: Asia/Shanghai
 
 jobs:
-  build1:
+  update:
     runs-on: ubuntu-24.04
     if: github.event.repository.owner.id == github.event.sender.id
 

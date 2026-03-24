@@ -6,7 +6,7 @@ on:
     types:
       - N1-OpenWrt-24.10
 env:
-  #OPENWRT_TAG: Opwrt-New
+  OPENWRT_TAG: Opwrt-24.10
   TZ: Asia/Shanghai
 
 jobs:
@@ -75,7 +75,7 @@ jobs:
         sed -i "s/DATE/${{ env.build_date }}/;s/WRT_SOUR/OpenWrt/;s/RELEASES/${latest_release}/" ./openwrt/files/etc/banner
         echo "latest_release=${latest_release}" >> ${GITHUB_ENV}
         echo "kernel_version=${kernel_version}" >> ${GITHUB_ENV}
-        echo "OPENWRT_TAG=openwrt-24.10-${{ env.build_date }}" >> ${GITHUB_ENV}
+        #echo "OPENWRT_TAG=openwrt-24.10-${{ env.build_date }}" >> ${GITHUB_ENV}
 
     - name: Make config
       working-directory: ${{ github.workspace }}/openwrt

@@ -1,7 +1,7 @@
 name: N1-OpenWrt-24.10
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
   repository_dispatch:
     types:
       - N1-OpenWrt-24.10

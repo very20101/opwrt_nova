@@ -5,8 +5,8 @@ on:
   repository_dispatch:
     types:
       - N1-OpenWrt-24.10
-
 env:
+  #OPENWRT_TAG: Opwrt-New
   TZ: Asia/Shanghai
 
 jobs:

@@ -5,6 +5,7 @@ on:
   repository_dispatch:
     types:
       - N1-OpenWrt-24.10
+
 env:
   OPENWRT_TAG: Opwrt-24.10
   TZ: Asia/Shanghai
@@ -22,7 +23,7 @@ jobs:
         echo -e "🧮 Server CPU configuration information: \n$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
         echo -e "💾 Server memory usage: \n$(free -h) \n"
         echo -e "🗃️ Server space usag: \n$(df -hT ${GITHUB_WORKSPACE}) \n"
-      
+
     - name: Maximize build space
       uses: easimon/maximize-build-space@master
       with:

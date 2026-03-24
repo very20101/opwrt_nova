@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-24.04
     #if: github.event.repository.owner.id == github.event.sender.id
 
-  steps:
+    steps:
     - name: Show system
       run: |
         echo -e "💬 Server information \n"

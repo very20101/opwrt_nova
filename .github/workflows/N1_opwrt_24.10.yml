@@ -7,15 +7,15 @@ on:
         description: 'SSH connection to Actions'
         required: false
         default: 'false'
-  schedule:
-    - cron: 0 0 20 * *
+  #schedule:
+    #- cron: 0 0 20 * *
 
 env:
   OPENWRT_TAG: Opwrt-24.10
   TZ: Asia/Shangh
 
 jobs:
-  build:
+   build:
     runs-on: ubuntu-24.04
     #if: github.event.repository.owner.id == github.event.sender.id
 

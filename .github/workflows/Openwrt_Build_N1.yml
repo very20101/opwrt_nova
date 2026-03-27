@@ -23,7 +23,8 @@ jobs:
 
     steps:
     - if: github.event.repository.owner.id == github.event.sender.id
-      name: 显示系统信息
+    
+      name: Show system
       run: |
         echo -e "💬 Server information \n"
         echo -e "💻 Server running on Ubuntu: [ Release: $(cat /etc/os-release | grep VERSION_CODENAME | cut -d '=' -f2) / Host: $(arch) ] \n"
@@ -31,7 +32,7 @@ jobs:
         echo -e "💾 Server memory usage: \n$(free -h) \n"
         echo -e "🗃️ Server space usag: \n$(df -hT ${{ github.workspace }}) \n"
 
-    - name: 准备可用空间
+    - name: Prepare building space
       uses: AdityaGarg8/remove-unwanted-software@v5
       with:
         remove-dotnet: true
@@ -43,151 +44,82 @@ jobs:
         remove-cached-tools: true
         remove-swapfile: true
 
-    - name: 检出代码
-      uses: actions/checkout@v6
+    - name: Checkout
+      uses: actions/checkout@v4
 
-    - name: 准备容器 ( init.sh )
-      run: bash scripts/init.sh
-
-    - name: 准备源码 ( prepare.sh )
-      run: d "cd ${ffdir} && bash scripts/openwrt/prepare.sh"
-
-    - name: 准备编译
-      run: |
-        d '
-          p "处理菜单"
-          cd ${wrtdir}/feeds/luci && bash ${ffdir}/scripts/menu.sh
-          cd ${wrtdir}/package/add && bash ${ffdir}/scripts/menu.sh
-
-          p "展开配置"
-          cd ${wrtdir}
-          cp ${ffdir}/scripts/openwrt/config.seed .config
-          make defconfig
-        '
-
-    - name: 压缩编译目录
-      run: |
-        d '
-          cd ${workdir}
-          cp -r ${ffdir} ${wrtdir}/
-          tar -cf - $(basename ${wrtdir})/ | zstd -19 -T0 > wrt_end.tar.zst
-          rm -rf ${wrtdir}/$(basename ${ffdir})
-        '
-
-    - name: 上传编译目录
-      uses: actions/upload-artifact@main
-      with:
-        name: wrt_end
-        path: ${{ env.workdir_host }}/wrt_end.tar.zst
-        compression-level: 0
-
-    - name: 缓存
-      uses: HiGarfield/cachewrtbuild@main
-      with:
-        mixkey: openwrt
-        prefix: ${{ env.workdir_host }}/openwrt
-
-    - name: 开始编译 OpenWrt
-      run: |
-        d '
-          cd ${wrtdir}
-          p "开始下载"
-          make download -j$(($(nproc) + 1))
-          p "开始编译"
-          make -j$(($(nproc) + 1))
-          if [ $? -ne 0 ]; then
-            p "！！编译失败！！开启单线程"
-            make -j1 V=s
-          else
-            p "编译成功"
-            . set_env build_success "true"
-          fi
-
-          p "打包日志"
-          tar -cf - logs/ | zstd -19 -T0 > "${workdir}/logs_openwrt.tar.zst"
-
-          [ "${build_success}" == "true" ] || exit 1
-        '
-
-        p "打印剩余空间"
-        df -h
-
-    - name: 上传日志文件
-      uses: actions/upload-artifact@main
-      with:
-        name: logs
-        path: ${{ env.workdir_host }}/logs_openwrt.tar.zst
-        compression-level: 0
-
-    - name: 打包固件
-      uses: ffuqiangg/amlogic-s9xxx-openwrt@main
-      with:
-        openwrt_path: ${{ env.workdir_host }}/openwrt/bin/targets/*/*/*rootfs.tar.gz
-        openwrt_board: s905d
-        kernel_repo: ffuqiangg/kernel_${{ env.current_version }}.y
-        openwrt_kernel: ${{ env.kernel_version }}
-        kernel_usage: stable
-        auto_kernel: false
-        openwrt_size: 820
-        openwrt_ip: 192.168.1.99
-        build_date: ${{ env.build_date }}
-
-    - if: env.build_success == 'true'
-      name: 上传固件
-      uses: actions/upload-artifact@main
-      with:
-        name: firmware
-        path: ${{ env.PACKAGED_OUTPUTPATH }}/*.img.gz
-        compression-level: 0
-
-    - if: github.event_name == 'repository_dispatch' && env.build_success == 'true'
-      name: 整理文件
-      run: |
-        p "将原始固件移动到工作目录"
-        cd ${{ env.workdir_host }}
-        rm -rf ./artifact/
-        mkdir -p ./artifact/
-        cp ${{ env.PACKAGED_OUTPUTPATH }}/*.img.gz ./artifact/
-
-        d '
-          p "重新打包固件"
-          cd ${workdir}/artifact/
-          7z a -tzip N1-OpenWrt-${{ env.latest_release }}-${{ env.build_date }}.zip *.img.gz
-        '
-
-        p "打印剩余空间"
-        df -h
-
-    - if: github.event_name == 'repository_dispatch' && env.build_success == 'true'
-      name: 发布 release
-      uses: ncipollo/release-action@main
+    - name: Init build dependencies
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag: ${{ env.build_date }}
-        allowUpdates: true
-        replacesArtifacts: true
-        artifacts: ${{ env.workdir_host }}/artifact/*.zip
-        bodyFile: ./doc/release.md
-
-    - if: github.event_name == 'repository_dispatch' && env.build_success == 'true'
-      name: TG 通知
+        DEBIAN_FRONTEND: noninteractive
       run: |
-        files=$(curl -fsSL https://github.com/ffuqiangg/build_openwrt/releases/expanded_assets/${{ env.build_date }} | \
-          grep -oE "N1-.*\.zip" | sort -u | wc -l)
-        date="
-        ${{ env.build_date }} 固件已发布
-        ￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣
-        📖 更新内容 NEW
-        "
-        url="
+        sudo -E apt-get -qq update
+        sudo /bin/bash -c "$(curl -sL https://git.io/vokNn)"
+        sudo -E apt-fast -y -qq install asciidoc bash bcc bin86 binutils bison bzip2 clang-15 clang llvm-15 llvm file flex g++ g++-multilib gawk gcc gcc-multilib gettext git gzip help2man intltool libboost-dev libelf-dev libncurses-dev libncurses5-dev libssl-dev libthread-queue-any-perl libusb-dev libxml-parser-perl make patch perl-modules python3-dev python3-pip python3-pyelftools python3-setuptools rsync sharutils swig time unzip util-linux wget xsltproc zlib1g-dev zip
+        sudo -E apt-fast -y -qq install dos2unix dwarves quilt npm
+        sudo -E npm install -g pnpm
+        pip3 install --user -U pylibfdt --break-system-packages
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+        sudo -E git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
+        sudo -E git config --global core.abbrev auto
+        df -h
 
-        📍 固件下载地址
-        https://github.com/ffuqiangg/build\_openwrt/releases/tag/${{ env.build_date }}
-        "
-        new="$(sed -n '/更新内容/,$p' ./doc/release.md | sed '1,2d' | sed 's/^-/・/g')"
-        msg="${date}${new}${url}"
-        if [ "${files}" == '6' ]; then
-          curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
-            -d "chat_id=${{ secrets.TELEGRAM_TO }}&text=${msg}&parse_mode=MarkDown&disable_web_page_preview=true"
-        fi
+    - name: Prepare source code
+      run: |
+        sudo chown -R runner:runner /home/runner/work/opwrt_nova
+        echo "build_date=$(date +%Y.%m.%d)" >> ${GITHUB_ENV}
+        cp -r ./scripts/openwrt-24.10/. ./
+        /bin/bash 01_prepare_source_code.sh
+        mkdir -p /home/runner/work/_actions/ffuqiangg/amlogic-s9xxx-openwrt/main
+        ln -sf /home/runner/work/opwrt_nova/opwrt_nova/openwrt /home/runner/work/_actions/ffuqiangg/amlogic-s9xxx-openwrt/main/openwrt
+
+    - name: Prepare package
+      working-directory: ${{ github.workspace }}/openwrt
+      run: |
+        cp -r ../scripts/openwrt-24.10/. ./
+        /bin/bash 02_prepare_package.sh
+
+    - name: Load custom configuration
+      run: |
+        latest_release="$(curl -s https://github.com/openwrt/openwrt/tags | grep -Eo "v[0-9\.]+-*r*c*[0-9]*.tar.gz" | sed -n '/24.10/p' | sed -n 1p | sed 's/.tar.gz//g' | sed 's/v//g')"
+        kernel_version="$(cat openwrt/include/kernel-6.6 | grep -oE "[1-9]\.[1-9][0-9]*\.[1-9][0-9]*")"
+        sed -i "s/DATE/${{ env.build_date }}/;s/WRT_SOUR/OpenWrt/;s/RELEASES/${latest_release}/" ./openwrt/files/etc/banner
+        echo "latest_release=${latest_release}" >> ${GITHUB_ENV}
+        echo "kernel_version=${kernel_version}" >> ${GITHUB_ENV}
+        #echo "OPENWRT_TAG=openwrt-24.10-${{ env.build_date }}" >> ${GITHUB_ENV}
+
+    - name: Make config
+      working-directory: ${{ github.workspace }}/openwrt
+      run: |
+        cp -f ../config/openwrt-24.10/config.seed .config
+        make defconfig
+
+    - name: Download package
+      working-directory: ${{ github.workspace }}/openwrt
+      run: |
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: Compile the firmware
+      working-directory: ${{ github.workspace }}/openwrt
+      run: |
+        make -j$(nproc) || make -j1 || make -j1 V=s
+
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@main
+      with:
+        name: OpenWrt_rootfs_${{ env.build_date }}
+        path: openwrt/bin
+        
+    - name: Upload OpenWrt Firmware to Release
+     uses: ncipollo/release-action@main
+     if: ${{ steps.compile.outputs.status  == 'success' && !cancelled() }}
+     with:
+        name: Opwrt-nova
+        tag: ${{ env.OPENWRT_TAG }}
+        #makeLatest: true
+        replacesArtifacts: true
+        artifacts: openwrt/bin/targets/*/*/*rootfs.tar.gz
+        allowUpdates: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+    

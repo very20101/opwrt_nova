@@ -1,4 +1,4 @@
-name: OpenWrt
+name: Build_OpenWrt_N1
 
 on:
   workflow_dispatch:
@@ -12,12 +12,14 @@ defaults:
 
 jobs:
   build:
-    runs-on: "ubuntu-24.04"
+    runs-on: ubuntu-24.04
 
     env:
       DEBIAN_FRONTEND: noninteractive
-      build_os: "cachyos"
-      build_success: ""
+      TZ: Asia/Shanghai
+      FILE_NAME: OpenWrt_N1
+      PRODUCT_NAME: OpenWrt_N1
+      OPENWRT_TAG: OpenWrt_N1
 
     steps:
     - if: github.event.repository.owner.id == github.event.sender.id

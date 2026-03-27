@@ -2,9 +2,13 @@ name: N1-OpenWrt-24.10
 
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types:
-      - N1-OpenWrt-24.10
+   inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
+  schedule:
+    - cron: 0 0 20 * *
 
 env:
   OPENWRT_TAG: Opwrt-24.10
@@ -12,8 +16,8 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    if: github.event.repository.owner.id == github.event.sender.id
+    runs-on: ubuntu-24.04
+    #if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
     - name: Show system

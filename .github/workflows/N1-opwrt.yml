@@ -1,0 +1,18 @@
+name: Build_N1_OpenWrt
+
+on:
+  workflow_dispatch:
+   inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
+
+env: 
+  OPENWRT_TAG: Opwrt-24.10
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    

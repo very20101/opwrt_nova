@@ -22,18 +22,11 @@ on:
 env:
   REPO_URL: https://github.com/openwrt/openwrt
   REPO_BRANCH: master
-  FEEDS_CONF: openwrt.feeds.conf.default
-  #CONFIG_FILE: ARMv8/config-openwrt-25081401
-  CONFIG_FILE: config/config-opwrt-20260103001
-  DIY_P1_SH: ARMv8/diy-part1.sh
-  DIY_P2_SH: ARMv8/diy-part2.sh
   UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  FILE_NAME: OpenWrt_Nova
-  PRODUCT_NAME: OpenWrt_Nova
-  OPENWRT_TAG: OpenWrt_Nova
+  OPENWRT_TAG: OpenWrt_N1
   
 jobs:
   build:

@@ -14,11 +14,6 @@ on:
 env:
   REPO_URL: https://github.com/openwrt/openwrt
   REPO_BRANCH: master
-  FEEDS_CONF: openwrt.feeds.conf.default
-  #CONFIG_FILE: ARMv8/config-openwrt-25081401
-  CONFIG_FILE: config/config-opwrt-20260103001
-  DIY_P1_SH: ARMv8/diy-part1.sh
-  DIY_P2_SH: ARMv8/diy-part2.sh
   UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
@@ -29,148 +24,107 @@ env:
   
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: github.event.repository.owner.id == github.event.sender.id || ! github.event.sender.id
     
-    steps:    
-    - name: Check Server Performance
+    steps:
+    - name: Show system
       run: |
-        echo "警告⚠"
-        echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
-        echo -e "已知CPU型号（降序）：8370C，8272CL，8171M，E5-2673 \n"
-        echo "--------------------------CPU信息--------------------------"
-        echo "CPU物理数量：$(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
-        echo -e "CPU核心信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
-        echo "--------------------------内存信息--------------------------"
-        echo "已安装内存详细信息："
-        echo -e "$(sudo lshw -short -C memory | grep GiB) \n"
-        echo "--------------------------硬盘信息--------------------------"
-        echo -e  "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l) \n"
-        echo "硬盘详情："
-        df -Th
-        
+        echo -e "💬 Server information \n"
+        echo -e "💻 Server running on Ubuntu: [ Release: $(cat /etc/os-release | grep VERSION_CODENAME | cut -d '=' -f2) / Host: $(arch) ] \n"
+        echo -e "🧮 Server CPU configuration information: \n$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
+        echo -e "💾 Server memory usage: \n$(free -h) \n"
+        echo -e "🗃️ Server space usag: \n$(df -hT ${GITHUB_WORKSPACE}) \n"
+
+    - name: Maximize build space
+      uses: easimon/maximize-build-space@master
+      with:
+        swap-size-mb: 1024
+        temp-reserve-mb: 512
+        root-reserve-mb: 4608
+        remove-dotnet: 'true'
+        remove-android: 'true'
+        remove-haskell: 'true'
+        remove-codeql: 'true'
+
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Initialization Environment
+    - name: Init build dependencies
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        #docker rmi $(docker images -q)
-        set -- $(docker images -f dangling=true -q)
-        [ "$#" -eq 0 ] || docker rmi "$@"
-        sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
-        sudo swapoff -a && sudo rm -f /swapfile /mnt/swapfile
-        sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-        sudo -E apt-get -y update
-        sudo -E apt-get -y install $(curl -fsSL https://raw.githubusercontent.com/very20101/Openwrt_retry/refs/heads/main/refs/ubuntu2204-update)
-        sudo apt-get install libncursesw6 libncurses-dev
-        sudo apt-get update && sudo apt-get install -y build-essential autoconf automake libtool
-        sudo -E systemctl daemon-reload
-        sudo -E apt-get -y autoremove --purge
-        sudo -E apt-get -y clean 
-        sudo -E apt-get -y autoclean
-        sudo timedatectl set-timezone "$TZ" 
-        sudo mkdir -p /workdir
-        sudo chown $USER:$GROUPS /workdir
+        sudo -E apt-get -qq update
+        sudo /bin/bash -c "$(curl -sL https://git.io/vokNn)"
+        sudo -E apt-fast -y -qq install asciidoc bash bcc bin86 binutils bison bzip2 clang-15 clang llvm-15 llvm file flex g++ g++-multilib gawk gcc gcc-multilib gettext git gzip help2man intltool libboost-dev libelf-dev libncurses-dev libncurses5-dev libssl-dev libthread-queue-any-perl libusb-dev libxml-parser-perl make patch perl-modules python3-dev python3-pip python3-pyelftools python3-setuptools rsync sharutils swig time unzip util-linux wget xsltproc zlib1g-dev zip
+        sudo -E apt-fast -y -qq install dos2unix dwarves quilt npm
+        sudo -E npm install -g pnpm
+        pip3 install --user -U pylibfdt --break-system-packages
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+        sudo -E git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
+        sudo -E git config --global core.abbrev auto
         df -h
-        
-    - name: Clone source code
-      working-directory: /workdir 
-      run: |
-        git clone $REPO_URL -b $REPO_BRANCH openwrt
-        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-        cd openwrt
-        useVersionInfo=$(git show -s --date=short --format="Author: %an<br/>date: %cd<br/>commit: %s<br/>commit hash: %H")
-        echo "VERSION_INFO=$VERSION_INFO" >> $GITHUB_ENV
-        echo "VERSION_INFO=$(echo $VERSION_INFO)" >> $GITHUB_OUTPUT
-        echo "useVersionInfo=$useVersionInfo" >> $GITHUB_ENV
-        echo "Build_DATE=$(date "+%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
-        echo "DATE1=$(date "+%Y-%m-%d")" >> $GITHUB_ENV
-        
-    - name: Load custom feeds
-      run: |
-          [[ -e "${FEEDS_CONF}" ]] && cp -f ${FEEDS_CONF} openwrt/feeds.conf.default
-          chmod +x ${DIY_P1_SH}
-          cd openwrt/
-          ${GITHUB_WORKSPACE}/${DIY_P1_SH}
-          
-    - name: Update feeds
-      run: cd openwrt/ && ./scripts/feeds update -a
 
-    - name: Install feeds
-      run: cd openwrt/ && ./scripts/feeds install -a
+    - name: Prepare source code
+      run: |
+        sudo chown -R runner:runner /home/runner/work/opwrt_nova
+        echo "build_date=$(date +%Y.%m.%d)" >> ${GITHUB_ENV}
+        cp -r ./scripts/openwrt-24.10/. ./
+        /bin/bash 01_prepare_source_code.sh
+        mkdir -p /home/runner/work/_actions/ffuqiangg/amlogic-s9xxx-openwrt/main
+        ln -sf /home/runner/work/opwrt_nova/opwrt_nova/openwrt /home/runner/work/_actions/ffuqiangg/amlogic-s9xxx-openwrt/main/openwrt
+
+    - name: Prepare package
+      working-directory: ${{ github.workspace }}/openwrt
+      run: |
+        cp -r ../scripts/openwrt-24.10/. ./
+        /bin/bash 02_prepare_package.sh
 
     - name: Load custom configuration
       run: |
-          [[ -d "files" ]] && mv -f files openwrt/files
-          [[ -e ${CONFIG_FILE} ]] && cp -f ${CONFIG_FILE} openwrt/.config
-          sudo chmod +x ${DIY_P2_SH}
-          cd openwrt/
-          ${GITHUB_WORKSPACE}/${DIY_P2_SH}
-          git clone https://github.com/very20101/openwrt_retry packages/op-retry
-          rm -rf feeds/smpackage/luci-app-fileassistant
-          cp -rf packages/op-retry/pkg_modified/luci-app-fileassistant feeds/smpackage/luci-app-fileassistant
-          rm -rf packages/op-retry
-          ./scripts/feeds update -a
-          ./scripts/feeds install -f
+        latest_release="$(curl -s https://github.com/openwrt/openwrt/tags | grep -Eo "v[0-9\.]+-*r*c*[0-9]*.tar.gz" | sed -n '/24.10/p' | sed -n 1p | sed 's/.tar.gz//g' | sed 's/v//g')"
+        kernel_version="$(cat openwrt/include/kernel-6.6 | grep -oE "[1-9]\.[1-9][0-9]*\.[1-9][0-9]*")"
+        sed -i "s/DATE/${{ env.build_date }}/;s/WRT_SOUR/OpenWrt/;s/RELEASES/${latest_release}/" ./openwrt/files/etc/banner
+        echo "latest_release=${latest_release}" >> ${GITHUB_ENV}
+        echo "kernel_version=${kernel_version}" >> ${GITHUB_ENV}
+        #echo "OPENWRT_TAG=openwrt-24.10-${{ env.build_date }}" >> ${GITHUB_ENV}
 
-    - name: Install Rust target for cross-compilation
-      run: rustup target add aarch64-unknown-linux-musl
-  
-    - name: Download package
-      id: package
+    - name: Make config
+      working-directory: ${{ github.workspace }}/openwrt
       run: |
-        cd openwrt
+        cp -f ../config/openwrt-24.10/config.seed .config
         make defconfig
+
+    - name: Download package
+      working-directory: ${{ github.workspace }}/openwrt
+      run: |
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-        df -h
-        
-    - name: Clean up workspace before build
-      run: rm -rf build_dir staging_dir tmp
-        
-    - name: Increase disk space
-      run: sudo mount -o remount,size=20G /tmp || echo "Disk space adjustment not supported" 
-              
-    - name: Compile the firmware
-      id: compile
-      run: |
-        chmod -R 755 openwrt
-        cd openwrt/
-        #make clean
-        make defconfig
-        rm -rf package/feeds/smpackage/shadowsocksr-libev  feeds/smpackage/shadowsocksr-libev
-        rm -rf feeds/smpackage/dapnet-gateway
-        curl -s https://raw.githubusercontent.com/sbwml/r4s_build_script/4a9fafefd67172e074fa62cbe3570c4e197376b3/openwrt/patch/apk-tools/9999-hack-for-linux-pre-releases.patch > package/system/apk/patches/9999-hack-for-linux-pre-releases.patch
-        rm -rf feeds/smpackage/trojan-plus 
-        rm -rf feeds/small8/trojan-plus
-        rm -rf package/op-retry/pkg_modified/trojan-plus
-        rm -rf package/feeds/small8/naiveproxy
-        rm -rf feeds/smpackage/naiveproxy
-        rm -rf feeds/packages/net/tailscale
-        echo -e "$(nproc) thread compile"
-        make -j$(nproc) || make -j1 || make -j1 V=s
-        echo "status=success" >> ${GITHUB_OUTPUT}
 
-    - name: Clean up before packaging  
-      run: |  
-        cd openwrt/  
-         rm -rf $(ls . | grep -v "^bin$" | xargs) 2>/dev/null  
-         df -hT $PWD
-       
-    - name: Increase disk space  
-      run: |  
-        sudo mount -o remount,size=20G /tmp || echo "Disk space adjustment not supported"  
-        df -h 
+    - name: Compile the firmware
+      working-directory: ${{ github.workspace }}/openwrt
+      run: |
+        make -j$(nproc) || make -j1 || make -j1 V=s
+
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@main
+      with:
+        name: OpenWrt_rootfs_${{ env.build_date }}
+        path: openwrt/bin
         
     - name: Upload OpenWrt Firmware to Release
-      uses: ncipollo/release-action@main
-      if: ${{ steps.compile.outputs.status  == 'success' && !cancelled()}}
-      with:
-        name: Openwrt-Nova
+     uses: ncipollo/release-action@main
+     if: ${{ steps.compile.outputs.status  == 'success' && !cancelled() }}
+     with:
+        name: Opwrt-nova
         tag: ${{ env.OPENWRT_TAG }}
+        #makeLatest: true
+        replacesArtifacts: true
+        artifacts: openwrt/bin/targets/*/*/*rootfs.tar.gz
+        allowUpdates: true
+        token: ${{ secrets.GITHUB_TOKEN }}
         makeLatest: true
         replacesArtifacts: true
         artifacts: openwrt/bin/targets/*/*/*rootfs.tar.gz

@@ -9,8 +9,16 @@ on:
         default: 'false'
 
 env: 
-  OPENWRT_TAG: Opwrt-24.10
+  env:
+  REPO_URL: https://github.com/openwrt/openwrt
+  REPO_BRANCH: master
   TZ: Asia/Shanghai
+  FILE_NAME: OpenWrt_N1
+  PRODUCT_NAME: OpenWrt_N1
+  OPENWRT_TAG: OpenWrt_N1
+  
+jobs:
+  build:
 
 jobs:
   build:

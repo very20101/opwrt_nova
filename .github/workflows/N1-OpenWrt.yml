@@ -8,11 +8,11 @@ on:
 
 env:
   OPENWRT_TAG: Opwrt-24.10
-  TZ: Asia/Shanghai
+  TZ: Asia/Shangh
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
 
     steps:

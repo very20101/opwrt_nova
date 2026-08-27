@@ -203,6 +203,7 @@ d '
     . set_env "lede_luci_repo" "https://github.com/coolsnowwolf/luci"
     . set_env "istoreos_repo" "https://github.com/istoreos/istoreos"
     . set_env "lienol_pkg_repo" "https://github.com/Lienol/openwrt-package"
+    . set_env "lede_repo" "https://github.com/very20101/small-package"
     . set_env "passwall_luci_repo" "https://github.com/xiaorouji/openwrt-passwall"
     . set_env "passwall_pkg_repo" "https://github.com/xiaorouji/openwrt-passwall-packages"
     . set_env "dockerman_repo" "https://github.com/lisaac/luci-app-dockerman"

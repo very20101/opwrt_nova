@@ -119,15 +119,11 @@ jobs:
         compression-level: 0
 
     - name: 打包固件
-      uses: ffuqiangg/amlogic-s9xxx-openwrt@main
+      uses: ophub/amlogic-s9xxx-openwrt@main
       with:
-        openwrt_path: ${{ env.workdir_host }}/openwrt/bin/targets/*/*/*rootfs.tar.gz
-        openwrt_board: s905d
-        kernel_repo: ffuqiangg/kernel_${{ env.current_version }}.y
-        openwrt_kernel: ${{ env.kernel_version }}
-        kernel_usage: stable
-        auto_kernel: false
-        openwrt_size: 820
+        openwrt_path: openwrt/bin/targets/*/*/*rootfs.tar.gz
+        openwrt_board: s905x3_s905x2_s905x_s905w_s905d_s922x_s912
+        openwrt_kernel: 6.1.y_6.66.12.y_6.18.y
         openwrt_ip: 192.168.1.99
         build_date: ${{ env.build_date }}
 

@@ -1,0 +1,67 @@
+{
+  "area_group": {
+    "香港": {
+      "type": "urltest",
+      "filter": "🇭🇰|HK|hk|香港|HongKong"
+    },
+    "台湾": {
+      "type": "urltest",
+      "filter": "🇹🇼|TW|tw|台湾|Taiwan"
+    },
+    "日本": {
+      "type": "urltest",
+      "filter": "🇯🇵|JP|jp|日本|Japan"
+    },
+    "韩国": {
+      "type": "urltest",
+      "filter": "🇰🇷|KR|kr|韩国|Korea"
+    },
+    "新加坡": {
+      "type": "urltest",
+      "filter": "🇸🇬|SG|sg|新加坡|Singapore"
+    },
+    "美国": {
+      "type": "urltest",
+      "filter": "🇺🇸|US|us|美国|United States"
+    },
+    "德国": {
+      "type": "urltest",
+      "filter": "🇩🇪|DE|de|德国|Germany"
+    }
+  },
+  "proxy_group": {
+    "Google": {
+      "geoip-google": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/google.srs",
+      "geosite-google": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/google.srs"
+    },
+    "Gemini": {
+      "geosite-gemini": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/google-gemini.srs"
+    },
+    "Github": {
+      "geosite-github": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/github.srs"
+    },
+    "Telegram": {
+      "geoip-telegram": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/telegram.srs",
+      "geosite-telegram": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/telegram.srs"
+    },
+    "OpenAI": {
+      "geosite-openai": "https://testingcf.jsdelivr.net/gh/Toperlock/sing-box-geosite@main/rule/OpenAI.srs"
+    },
+    "DMM": {
+      "geosite-dmm": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/dmm.srs"
+    },
+    "HBO": {
+      "geosite-hbo": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/hbo.srs"
+    },
+    "NETFLIX": {
+      "geoip-netflix": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/netflix.srs",
+      "geosite-netflix": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/netflix.srs"
+    },
+    "Spotify": {
+      "geosite-spotify": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/spotify.srs"
+    },
+    "Instagram": {
+      "geosite-instagram": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/instagram.srs"
+    }
+  }
+}

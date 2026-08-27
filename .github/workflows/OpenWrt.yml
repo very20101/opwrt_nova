@@ -91,6 +91,7 @@ jobs:
           cd ${wrtdir}
           p "开始下载"
           make download -j$(($(nproc) + 1))
+          rm -rf feeds/luci/applications/luci-app-samba4 feeds/packages/net/samba4
           p "开始编译"
           make -j$(($(nproc) + 1))
           if [ $? -ne 0 ]; then

@@ -3,7 +3,7 @@
 source /etc/openwrt_release
 
 [ ! -n "$BUILD_DATE" ] && BUILD_DATE=$(grep -oE "[0-9]{4}\.[0-9]{2}\.[0-9]{2}" /etc/banner)
-download_url="https://github.com/ffuqiangg/build_openwrt/releases/download/${BUILD_DATE}/"
+download_url="https://github.com/very20101/opwrt_nova/releases/download/${BUILD_DATE}/"
 
 if [ $(echo "$DISTRIB_DESCRIPTION" | grep -c 'LEDE') -ne 0 ]; then
     download_file="N1-LEDE-${DISTRIB_REVISION}-${BUILD_DATE}-packages.zip"
